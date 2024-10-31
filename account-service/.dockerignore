@@ -1,0 +1,9 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!gradle
+!src
+!build.gradle
+!gradlew
+!settings.gradle

@@ -1,0 +1,77 @@
+services:
+  postgres-client-service:
+    image: postgres:16.4
+    container_name: db-client-service
+    environment:
+      POSTGRES_USER: ${ACCOUNT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${ACCOUNT_DB_PASSWORD}
+      POSTGRES_DB: ${ACCOUNT_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-client-service-data:/var/lib/postgresql/data
+
+  postgres-account-service:
+    image: postgres:16.4
+    container_name: db-account-service
+    environment:
+      POSTGRES_USER: ${CLIENT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${CLIENT_DB_PASSWORD}
+      POSTGRES_DB: ${CLIENT_DB_NAME}
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres-account-service-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "15672:15672"
+
+  client-service:
+    build:
+      context: ./client-service
+      dockerfile: Dockerfile
+    container_name: client-service
+    environment:
+      DB_HOST: ${CLIENT_DB_HOST}
+      DB_PORT: ${CLIENT_DB_PORT}
+      DB_NAME: ${CLIENT_DB_NAME}
+      DB_USERNAME: ${CLIENT_DB_USERNAME}
+      DB_PASSWORD: ${CLIENT_DB_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-client-service
+
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    container_name: account-service
+    environment:
+      DB_HOST: ${ACCOUNT_DB_HOST}
+      DB_PORT: ${ACCOUNT_DB_PORT}
+      DB_NAME: ${ACCOUNT_DB_NAME}
+      DB_USERNAME: ${ACCOUNT_DB_USERNAME}
+      DB_PASSWORD: ${ACCOUNT_DB_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    ports:
+      - "8090:8090"
+    depends_on:
+      - postgres-account-service
+
+volumes:
+  postgres-client-service-data:
+  postgres-account-service-data:

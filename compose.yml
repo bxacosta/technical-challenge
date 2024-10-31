@@ -1,0 +1,38 @@
+services:
+  postgres-client-service:
+    image: postgres:16.4
+    container_name: db-client-service
+    environment:
+      POSTGRES_USER: enki
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: service-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-client-service-data:/var/lib/postgresql/data
+
+  postgres-account-service:
+    image: postgres:16.4
+    container_name: db-account-service
+    environment:
+      POSTGRES_USER: enki
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: service-db
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres-account-service-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: enki
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - "5672:5672"  # Puerto para la conexión de clientes
+      - "15672:15672"  # Puerto para la interfaz de administración
+
+volumes:
+  postgres-client-service-data:
+  postgres-account-service-data:
